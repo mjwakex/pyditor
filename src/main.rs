@@ -1,10 +1,6 @@
 use std::io::{stdout, Write};
 use crossterm::{
-    execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen},
-    cursor::MoveTo,
-    event::{read, Event, KeyCode},
-    ExecutableCommand,
+    cursor::{self, MoveTo}, event::{read, Event, KeyCode}, execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}, ExecutableCommand
 };
 
 fn main(){
@@ -14,8 +10,9 @@ fn main(){
     let _ = crossterm::terminal::enable_raw_mode();
 
     // state of editor
-    let mut text = String::from("pyditor - A nano inspired python editor");
+    let mut text = String::from("pyditor - A nano inspired python editor\n");
     let mut cursor_x = 0;
+    let mut cursor_y = 0;
 
     // continuous loop handling rendering and user input
     loop {
@@ -46,6 +43,11 @@ fn main(){
                     if cursor_x > 0 {
                         cursor_x -= 1;
                     }
+                }
+                KeyCode::Enter => {
+                    cursor_x = 0;
+                    cursor_y += 1;
+                    text.push('\n');
                 }
                 // exit the editor on ESC key
                 KeyCode::Esc => break, 
