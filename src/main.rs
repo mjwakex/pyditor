@@ -33,7 +33,7 @@ fn main(){
 
     // state of editor
     let mut cursor_x = 0;
-    let mut cursor_y = 1;
+    let mut cursor_y = 0;
 
     // continuous loop handling rendering and user input
     loop {
