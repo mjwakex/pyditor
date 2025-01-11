@@ -1,11 +1,31 @@
 use std::env;
 use std::fs::{File, OpenOptions};
-use std::io::{self, stdout, Write};
+use std::io::{self, stdout, Write, Read};
 use crossterm::{
     cursor::MoveTo, event::{read, Event, KeyCode, KeyModifiers}, execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}, ExecutableCommand
 };
 
 fn main(){
+
+    // get the filename from the command-line arguments
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        eprintln!("Usage: pyditor <filename>");
+        return;
+    }
+    let filename = &args[1];
+
+    // open the file or create it if it doesn't exist
+    let mut text = String::new();
+    if std::path::Path::new(filename).exists() {
+        // file exists, read its content
+        let mut file = File::open(filename).expect("Unable to open file");
+        file.read_to_string(&mut text).expect("Unable to read file");
+    } else {
+        // file doesn't exist, create a new one
+        println!("New file created: {}", filename);
+    }
+
     // entering alternate screen
     let mut stdout = stdout();
     stdout.execute(EnterAlternateScreen).unwrap();
@@ -32,8 +52,7 @@ fn main(){
                 KeyCode::Char(c) => {
                     if event.modifiers == KeyModifiers::CONTROL && c == 's' {
                         // Ctrl+S to save
-                        let filename = prompt_filename();
-                        save_to_file(&text, &filename);
+                        save_to_file(&text, filename);
                     } else {
                         // normal typing
                         let index = get_cursor_index(&text, cursor_x, cursor_y);
@@ -113,22 +132,19 @@ fn get_line_length(text: &str, line_number: usize) -> usize {
     text.lines().nth(line_number).unwrap_or("").len()
 }
 
-// ask for filename to save
-fn prompt_filename() -> String {
-    let mut stdout = stdout();
-    execute!(stdout, MoveTo(0, 0)).unwrap();
-    print!("Filename: ");
-    stdout.flush().unwrap();
-
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Failed to read line");
-    input.trim().to_string()
-}
-
 // save the file
 fn save_to_file(text: &str, filename: &str) {
-    let mut file = File::create(filename).expect("Unable to create file");
-    file.write_all(text.as_bytes()).expect("Unable to write data");
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true) // overwrite
+        .open(filename)
+        .expect("Unable to open file for saving");
+
+    file.write_all(text.as_bytes())
+        .expect("Unable to write data to file");
+
+    println!("File saved as '{}'", filename);
 }
 
 
