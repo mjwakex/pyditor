@@ -1,6 +1,6 @@
 use std::env;
 use std::fs::{File, OpenOptions};
-use std::io::{self, stdout, Write, Read};
+use std::io::{stdout, Write, Read};
 use crossterm::{
     cursor::MoveTo, event::{read, Event, KeyCode, KeyModifiers}, execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}, ExecutableCommand
 };
