@@ -1,6 +1,8 @@
-use std::io::{stdout, Write};
+use std::env;
+use std::fs::{File, OpenOptions};
+use std::io::{self, stdout, Write};
 use crossterm::{
-    cursor::MoveTo, event::{read, Event, KeyCode}, execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}, ExecutableCommand
+    cursor::MoveTo, event::{read, Event, KeyCode, KeyModifiers}, execute, terminal::{EnterAlternateScreen, LeaveAlternateScreen}, ExecutableCommand
 };
 
 fn main(){
@@ -28,9 +30,16 @@ fn main(){
         if let Event::Key(event) = read().unwrap() {
             match event.code {
                 KeyCode::Char(c) => {
-                    let index = get_cursor_index(&text, cursor_x, cursor_y);
-                    text.insert(index, c);
-                    cursor_x += 1;
+                    if event.modifiers == KeyModifiers::CONTROL && c == 's' {
+                        // Ctrl+S to save
+                        let filename = prompt_filename();
+                        save_to_file(&text, &filename);
+                    } else {
+                        // normal typing
+                        let index = get_cursor_index(&text, cursor_x, cursor_y);
+                        text.insert(index, c);
+                        cursor_x += 1;
+                    }
                 }
                 KeyCode::Backspace => {
                     if cursor_x > 0 || cursor_y > 0 {
@@ -102,6 +111,24 @@ fn get_line_count(text: &str) -> usize {
 // get the length of a specific line
 fn get_line_length(text: &str, line_number: usize) -> usize {
     text.lines().nth(line_number).unwrap_or("").len()
+}
+
+// ask for filename to save
+fn prompt_filename() -> String {
+    let mut stdout = stdout();
+    execute!(stdout, MoveTo(0, 0)).unwrap();
+    print!("Filename: ");
+    stdout.flush().unwrap();
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read line");
+    input.trim().to_string()
+}
+
+// save the file
+fn save_to_file(text: &str, filename: &str) {
+    let mut file = File::create(filename).expect("Unable to create file");
+    file.write_all(text.as_bytes()).expect("Unable to write data");
 }
 
 
