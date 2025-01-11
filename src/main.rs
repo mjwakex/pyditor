@@ -32,7 +32,6 @@ fn main(){
     let _ = crossterm::terminal::enable_raw_mode();
 
     // state of editor
-    // let mut text = String::from("#pyditor - A nano inspired python editor\n");
     let mut cursor_x = 0;
     let mut cursor_y = 1;
 
