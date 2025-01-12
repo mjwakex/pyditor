@@ -88,6 +88,20 @@ fn main(){
                         cursor_x = get_line_length(&text, cursor_y);
                     }
                 }
+                KeyCode::Up => {
+                    if cursor_y > 0 {
+                        cursor_y -= 1;
+                        // cursor_x doesn't exceed the length of the new line
+                        cursor_x = cursor_x.min(get_line_length(&text, cursor_y));
+                    }
+                }
+                KeyCode::Down => {
+                    if cursor_y < get_line_count(&text) - 1 {
+                        cursor_y += 1;
+                        // cursor_x doesn't exceed the length of the new line
+                        cursor_x = cursor_x.min(get_line_length(&text, cursor_y));
+                    }
+                }
                 KeyCode::Enter => {
                     let index = get_cursor_index(&text, cursor_x, cursor_y);
                     text.insert(index, '\n');
@@ -151,7 +165,7 @@ fn save_to_file(text: &str, filename: &str) {
     file.write_all(text.as_bytes())
         .expect("Unable to write data to file");
 
-    println!("File saved as '{}'", filename);
+    println!("\nFile saved as '{}'", filename);
 }
 
 
