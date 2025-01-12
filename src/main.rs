@@ -114,11 +114,19 @@ fn render_text_with_newlines(text: &str) -> String {
 
 // get the index in the text based on cursor position
 fn get_cursor_index(text: &str, cursor_x: usize, cursor_y: usize) -> usize {
-    text.lines()
-        .take(cursor_y)
-        .map(|line| line.len() + 1) // +1 for the '\n'
-        .sum::<usize>()
-        + cursor_x
+    let mut index = 0;
+    for (i, line) in text.lines().enumerate() {
+        if i == cursor_y {
+            index += cursor_x.min(line.len()); // prevent out-of-bounds
+            break;
+        }
+        index += line.len() + 1; // +1 for the '\n'
+    }
+    // ensure index is a valid character boundary
+    while !text.is_char_boundary(index) && index > 0 {
+        index -= 1;
+    }
+    index
 }
 
 // get the number of lines in the text
