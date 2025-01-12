@@ -1,5 +1,5 @@
 # pyditor
-## A basic terminal Python-specific text editor written in Rust as my first project.
+## A basic terminal text editor with python syntax highlighting written in Rust as my first project.
 run ```bash createExe.sh``` to add <i>pyditor</i> to PATH <br>
 Now run ```pyditor <filename>```
 ## Commands
